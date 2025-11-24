@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tienda de Camisetas</title>
+    <link rel="icon" href="./assets/barca.png" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -45,27 +46,37 @@
                 <button type="button" id="close-login-modal" class="w-full mt-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                     Cancelar
                 </button>
-                <p class="text-sm text-center text-gray-500 dark:text-gray-400 mt-4">Credenciales: **Axel15 / Axel15\*.**</p>
+                <p class="text-sm text-center text-gray-500 dark:text-gray-400 mt-4">Credenciales: <br> Axel15 <br> Axel15*.</p>
             </form>
         </div>
     </div>
 
     <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        
+        <div class="flex items-center space-x-3">
+            <img src="./assets/barca.png" alt="Tu Logo" class="h-8 w-8 object-contain">
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Camisetas Store</h1>
-            <div class="flex items-center space-x-4">
-                <button id="login-toggle" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-medium">
-                    <i class="fas fa-sign-in-alt mr-2" id="login-icon"></i><span id="login-text">Iniciar Sesión</span>
-                </button>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                    <i class="fas fa-shopping-cart mr-2"></i>Carrito
-                </button>
-                <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                    <i class="fas fa-moon" id="theme-icon"></i>
-                </button>
-            </div>
         </div>
-    </header>
+        
+        <div class="flex items-center space-x-4">
+            
+            <button id="login-toggle" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-medium">
+                <i class="fas fa-sign-in-alt mr-2" id="login-icon"></i><span id="login-text">Iniciar Sesión</span>
+            </button>
+            
+            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                <i class="fas fa-shopping-cart mr-2"></i>Carrito
+            </button>
+            
+            <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+            
+        </div>
+        
+    </div>
+</header>
 
     <main class="container mx-auto px-4 py-8">
         <section id="add-product-section" class="mb-12 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hidden">
@@ -107,7 +118,7 @@
 
     <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12 py-8">
         <div class="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
-            <p>&copy; 2023 Camisetas Store. Todos los derechos reservados.</p>
+            <p>&copy; 2025 Camisetas Store. Todos los derechos reservados.</p>
         </div>
     </footer>
 
