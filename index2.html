@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda de Camisetas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        /* Estilos CSS para mejorar la visualización de los selectores de talla */
+        .size-label {
+            cursor: pointer;
+        }
+        .size-span {
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: #f3f4f6; /* bg-gray-200 */
+            color: #1f2937; /* text-gray-800 */
+            border-radius: 9999px; /* rounded-full */
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            transition: all 0.2s;
+        }
+        .dark .size-span {
+            background-color: #374151; /* dark:bg-gray-700 */
+            color: #d1d5db; /* dark:text-gray-300 */
+            border-color: #4b5563; /* dark:border-gray-600 */
+        }
+        .size-checkbox:checked + .size-span {
+            background-color: #2563eb; /* bg-blue-600 */
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+
+    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 hidden flex items-center justify-center transition-opacity duration-300">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 relative transform transition-all duration-300 scale-100">
+            <h3 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">🔐 Iniciar Sesión (Admin)</h3>
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Usuario</label>
+                    <input type="text" id="username" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                    Acceder
+                </button>
+                <button type="button" id="close-login-modal" class="w-full mt-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                    Cancelar
+                </button>
+                <p class="text-sm text-center text-gray-500 dark:text-gray-400 mt-4">Credenciales: **Axel15 / Axel15\*.**</p>
+            </form>
+        </div>
+    </div>
+    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Camisetas Store</h1>
+            <div class="flex items-center space-x-4">
+                <button id="login-toggle" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-medium">
+                    <i class="fas fa-sign-in-alt mr-2" id="login-icon"></i><span id="login-text">Iniciar Sesión</span>
+                </button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-shopping-cart mr-2"></i>Carrito
+                </button>
+                <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <section id="add-product-section" class="mb-12 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hidden">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Agregar Nueva Camiseta (Solo Admin)</h2>
+            <form id="add-product-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="product-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL de la Imagen</label>
+                    <input type="url" id="product-image" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="https://ejemplo.com/imagen.jpg" required>
+                </div>
+                <div>
+                    <label for="product-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Título</label>
+                    <input type="text" id="product-title" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Camiseta de ejemplo" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tallas Disponibles</label>
+                    <div class="flex flex-wrap gap-2">
+                        <label class="size-label">
+                            <input type="checkbox" class="size-checkbox hidden" value="XS">
+                            <span class="size-span">XS</span>
+                        </label>
+                        <label class="size-label">
+                            <input type="checkbox" class="size-checkbox hidden" value="S">
+                            <span class="size-span">S</span>
+                        </label>
+                        <label class="size-label">
+                            <input type="checkbox" class="size-checkbox hidden" value="M">
+                            <span class="size-span">M</span>
+                        </label>
+                        <label class="size-label">
+                            <input type="checkbox" class="size-checkbox hidden" value="L">
+                            <span class="size-span">L</span>
+                        </label>
+                        <label class="size-label">
+                            <input type="checkbox" class="size-checkbox hidden" value="XL">
+                            <span class="size-span">XL</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Agregar al Catálogo
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section>
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center">Catálogo de Camisetas</h2>
+            <div id="product-catalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                </div>
+        </section>
+    </main>
+
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12 py-8">
+        <div class="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
+            <p>&copy; 2023 Camisetas Store. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simulación de estado de sesión y credenciales
+        let isLoggedIn = false;
+        const VALID_USERNAME = "Axel15";
+        const VALID_PASSWORD = "Axel15*.";
+        
+        // Elementos del DOM
+        const loginToggle = document.getElementById('login-toggle');
+        const loginText = document.getElementById('login-text');
+        const loginIcon = document.getElementById('login-icon');
+        const addProductSection = document.getElementById('add-product-section');
+        const productCatalog = document.getElementById('product-catalog');
+        const addProductForm = document.getElementById('add-product-form');
+        const loginModal = document.getElementById('login-modal');
+        const loginForm = document.getElementById('login-form');
+        const closeLoginModal = document.getElementById('close-login-modal');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        // Productos iniciales por defecto (si localStorage está vacío)
+        const defaultProducts = [
+            { id: 1, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', title: 'Camiseta Básica Negra', sizes: ['S', 'M', 'L', 'XL'] },
+            { id: 2, image: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', title: 'Camiseta Estampada', sizes: ['XS', 'S', 'M', 'L'] },
+            { id: 3, image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', title: 'Camiseta Manga Larga', sizes: ['M', 'L', 'XL'] },
+            { id: 4, image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', title: 'Camiseta Casual Azul', sizes: ['S', 'M', 'L'] }
+        ];
+
+        // --- FUNCIONES DE PERSISTENCIA DE DATOS (LOCALSTORAGE) ---
+        // Estas funciones garantizan que todos los usuarios que abran la página 
+        // en el mismo dispositivo vean el mismo catálogo actualizado.
+        
+        function loadProductsFromLocalStorage() {
+            try {
+                const savedProducts = localStorage.getItem('camisetasCatalog');
+                // Si hay datos guardados, los usa. Si no, usa los productos por defecto.
+                return savedProducts ? JSON.parse(savedProducts) : defaultProducts;
+            } catch (error) {
+                console.error("Error cargando productos de localStorage. Usando productos por defecto.", error);
+                return defaultProducts;
+            }
+        }
+
+        function saveProductsToLocalStorage(currentProducts) {
+            try {
+                localStorage.setItem('camisetasCatalog', JSON.stringify(currentProducts));
+            } catch (error) {
+                console.error("Error guardando productos en localStorage:", error);
+            }
+        }
+        // ----------------------------------------------------------
+
+        // Cargar el catálogo al inicio (usa localStorage si está disponible)
+        let products = loadProductsFromLocalStorage();
+
+        // Función para actualizar la interfaz de usuario según el estado de la sesión
+        function updateUI() {
+            if (isLoggedIn) {
+                // Estado: Iniciado sesión (Admin)
+                loginText.textContent = 'Cerrar Sesión (Admin)';
+                loginIcon.className = 'fas fa-sign-out-alt mr-2';
+                loginToggle.classList.remove('bg-green-500', 'hover:bg-green-600');
+                loginToggle.classList.add('bg-red-500', 'hover:bg-red-600');
+                addProductSection.classList.remove('hidden'); // Muestra el formulario de agregar
+            } else {
+                // Estado: No iniciado sesión (Invitado)
+                loginText.textContent = 'Iniciar Sesión';
+                loginIcon.className = 'fas fa-sign-in-alt mr-2';
+                loginToggle.classList.remove('bg-red-500', 'hover:bg-red-600');
+                loginToggle.classList.add('bg-green-500', 'hover:bg-green-600');
+                addProductSection.classList.add('hidden'); // Oculta el formulario de agregar
+            }
+            // Renderiza el catálogo para mostrar/ocultar botones de eliminar
+            renderProducts(products); 
+        }
+
+        // Event Listeners del Modal
+        loginToggle.addEventListener('click', function() {
+            if (isLoggedIn) {
+                // Cerrar Sesión
+                isLoggedIn = false;
+                updateUI();
+                alert('Sesión cerrada. Solo puedes ver el catálogo.');
+            } else {
+                // Abrir modal de Login
+                loginModal.classList.remove('hidden');
+            }
+        });
+
+        closeLoginModal.addEventListener('click', () => loginModal.classList.add('hidden'));
+
+        // Lógica de Login con credenciales
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                isLoggedIn = true;
+                loginModal.classList.add('hidden');
+                loginForm.reset();
+                updateUI();
+                alert('¡Login exitoso! Bienvenido, Axel15. Tienes permisos de administrador.');
+            } else {
+                alert('Credenciales incorrectas. Inténtalo de nuevo. (Sugerencia: Axel15 / Axel15*.)');
+            }
+        });
+
+
+        // Función para manejar la eliminación de un producto
+        function deleteProduct(productId) {
+            if (!isLoggedIn) {
+                alert('¡Solo el administrador (Axel15) puede eliminar productos!');
+                return;
+            }
+            if (confirm('¿Estás seguro de que quieres eliminar este producto del catálogo? Esta acción es permanente.')) {
+                
+                products = products.filter(product => product.id !== productId);
+                
+                saveProductsToLocalStorage(products); // GUARDA EL CAMBIO
+                
+                renderProducts(products); 
+                alert('Producto eliminado exitosamente.');
+            }
+        }
+
+
+        // Función para renderizar productos
+        function renderProducts(productsToRender) {
+            productCatalog.innerHTML = '';
+            
+            productsToRender.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 flex flex-col';
+                
+                // El botón de eliminar SOLO se inyecta si isLoggedIn es true
+                const deleteButtonHtml = isLoggedIn ? `
+                    <button data-id="${product.id}" class="delete-btn absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full size-8 flex items-center justify-center shadow-lg transition-colors z-20" title="Eliminar Producto">
+                        <i class="fas fa-trash-alt text-sm"></i>
+                    </button>
+                ` : '';
+
+                productCard.innerHTML = `
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover">
+                        ${deleteButtonHtml}
+                    </div>
+                    <div class="p-4 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">${product.title}</h3>
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Tallas disponibles:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    ${product.sizes.map(size => `
+                                        <span class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs rounded">${size}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center mt-auto">
+                            <i class="fas fa-shopping-cart mr-2"></i>Comprar
+                        </button>
+                    </div>
+                `;
+                
+                productCatalog.appendChild(productCard);
+
+                // Asigna el evento de eliminación SOLO si el botón fue creado
+                if (isLoggedIn) {
+                    const deleteButton = productCard.querySelector('.delete-btn');
+                    if (deleteButton) {
+                        deleteButton.addEventListener('click', function() {
+                            const productId = parseInt(this.getAttribute('data-id'));
+                            deleteProduct(productId);
+                        });
+                    }
+                }
+            });
+        }
+        
+        // Función para agregar productos
+        addProductForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!isLoggedIn) {
+                alert('¡Solo el administrador (Axel15) puede agregar productos al catálogo!');
+                return;
+            }
+            
+            const imageUrl = document.getElementById('product-image').value;
+            const title = document.getElementById('product-title').value;
+            const sizeCheckboxes = document.querySelectorAll('.size-checkbox:checked');
+            const sizes = Array.from(sizeCheckboxes).map(checkbox => checkbox.value);
+            
+            if (sizes.length === 0) {
+                alert('Por favor selecciona al menos una talla');
+                return;
+            }
+            
+            const newProduct = {
+                id: Date.now(),
+                image: imageUrl,
+                title: title,
+                sizes: sizes
+            };
+            
+            products.push(newProduct);
+            
+            saveProductsToLocalStorage(products); // GUARDA EL CAMBIO
+            
+            renderProducts(products);
+            
+            // Limpiar formulario y desmarcar checkboxes
+            addProductForm.reset();
+            document.querySelectorAll('.size-checkbox').forEach(cb => cb.checked = false);
+            
+            alert('Producto agregado exitosamente al catálogo!');
+        });
+
+        // Lógica de Cambio de Tema
+        const initTheme = () => {
+            if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        };
+
+        themeToggle.addEventListener('click', function() {
+            themeIcon.classList.toggle('fa-moon');
+            themeIcon.classList.toggle('fa-sun');
+            
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
+        
+        // Inicializar
+        initTheme();
+        updateUI(); 
+    </script>
+</body>
+</html>
