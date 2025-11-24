@@ -12,6 +12,7 @@
         tailwind.config = { darkMode: 'class', }
     </script>
     <style>
+        @import "tailwindcss";
         /* Estilos CSS para el selector de tallas (igual que antes) */
         .size-label { cursor: pointer; }
         .size-span {
@@ -52,22 +53,23 @@
     </div>
 
     <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="container mx-auto px-4 py-4 flex flex-wrap justify-between items-center">
         
         <div class="flex items-center space-x-3">
             <img src="./assets/barca.png" alt="Tu Logo" class="h-8 w-8 object-contain">
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Camisetas Store</h1>
         </div>
         
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2 md:space-x-4"> 
             
-            <button id="login-toggle" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-medium">
-                <i class="fas fa-sign-in-alt mr-2" id="login-icon"></i><span id="login-text">Iniciar Sesión</span>
+            <button id="login-toggle" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 md:px-4 rounded-lg transition-colors font-medium flex items-center">
+                <i class="fas fa-sign-in-alt md:mr-2" id="login-icon"></i>
+                <span id="login-text" class="hidden md:inline">Iniciar Sesión</span> 
             </button>
             
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                <i class="fas fa-shopping-cart mr-2"></i>Carrito
-            </button>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 rounded-lg transition-colors flex items-center">
+                <i class="fas fa-shopping-cart md:mr-2"></i>
+                <span class="hidden md:inline">Carrito</span> </button>
             
             <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                 <i class="fas fa-moon" id="theme-icon"></i>
