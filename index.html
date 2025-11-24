@@ -4,44 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tienda de Camisetas</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
+        tailwind.config = { darkMode: 'class', }
     </script>
     <style>
-        /* Estilos CSS para mejorar la visualización de los selectores de talla */
-        .size-label {
-            cursor: pointer;
-        }
+        /* Estilos CSS para el selector de tallas (igual que antes) */
+        .size-label { cursor: pointer; }
         .size-span {
-            display: inline-block;
-            padding: 8px 12px;
-            background-color: #f3f4f6; /* bg-gray-200 */
-            color: #1f2937; /* text-gray-800 */
-            border-radius: 9999px; /* rounded-full */
-            border: 1px solid #d1d5db; /* border-gray-300 */
-            transition: all 0.2s;
+            display: inline-block; padding: 8px 12px; background-color: #f3f4f6; color: #1f2937; 
+            border-radius: 9999px; border: 1px solid #d1d5db; transition: all 0.2s;
         }
         .dark .size-span {
-            background-color: #374151; /* dark:bg-gray-700 */
-            color: #d1d5db; /* dark:text-gray-300 */
-            border-color: #4b5563; /* dark:border-gray-600 */
+            background-color: #374151; color: #d1d5db; border-color: #4b5563;
         }
         .size-checkbox:checked + .size-span {
-            background-color: #2563eb; /* bg-blue-600 */
-            color: white;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+            background-color: #2563eb; color: white; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
         }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
 
-    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 hidden flex items-center justify-center transition-opacity duration-300">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 relative transform transition-all duration-300 scale-100">
+    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 hidden flex items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 relative">
             <h3 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">🔐 Iniciar Sesión (Admin)</h3>
             <form id="login-form" class="space-y-6">
                 <div>
@@ -62,6 +49,7 @@
             </form>
         </div>
     </div>
+
     <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Camisetas Store</h1>
@@ -94,26 +82,11 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tallas Disponibles</label>
                     <div class="flex flex-wrap gap-2">
-                        <label class="size-label">
-                            <input type="checkbox" class="size-checkbox hidden" value="XS">
-                            <span class="size-span">XS</span>
-                        </label>
-                        <label class="size-label">
-                            <input type="checkbox" class="size-checkbox hidden" value="S">
-                            <span class="size-span">S</span>
-                        </label>
-                        <label class="size-label">
-                            <input type="checkbox" class="size-checkbox hidden" value="M">
-                            <span class="size-span">M</span>
-                        </label>
-                        <label class="size-label">
-                            <input type="checkbox" class="size-checkbox hidden" value="L">
-                            <span class="size-span">L</span>
-                        </label>
-                        <label class="size-label">
-                            <input type="checkbox" class="size-checkbox hidden" value="XL">
-                            <span class="size-span">XL</span>
-                        </label>
+                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="XS"><span class="size-span">XS</span></label>
+                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="S"><span class="size-span">S</span></label>
+                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="M"><span class="size-span">M</span></label>
+                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="L"><span class="size-span">L</span></label>
+                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="XL"><span class="size-span">XL</span></label>
                     </div>
                 </div>
                 <div class="md:col-span-2">
@@ -127,7 +100,8 @@
         <section>
             <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center">Catálogo de Camisetas</h2>
             <div id="product-catalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                </div>
+                <p id="loading-message" class="text-center md:col-span-4 text-gray-600 dark:text-gray-400">Cargando catálogo...</p>
+            </div>
         </section>
     </main>
 
@@ -138,12 +112,19 @@
     </footer>
 
     <script>
-        // Simulación de estado de sesión y credenciales
+        // --- CONFIGURACIÓN DE SUPABASE (REEMPLAZA LOS PLACEHOLDERS) ---
+        const SUPABASE_URL = 'https://rusiimqtzjfojxpojsvg.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1c2lpbXF0empmb2p4cG9qc3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDc0MDMsImV4cCI6MjA3OTU4MzQwM30.953QFT1e-tDBvCIMtpwLqxLlwrDyQKjTilDHy5etThE';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const PRODUCTS_TABLE = 'productos'; // Nombre de la tabla creada con SQL
+        // -------------------------------------------------------------
+
+        // Variables y elementos DOM (igual que antes)
         let isLoggedIn = false;
         const VALID_USERNAME = "Axel15";
         const VALID_PASSWORD = "Axel15*.";
         
-        // Elementos del DOM
         const loginToggle = document.getElementById('login-toggle');
         const loginText = document.getElementById('login-text');
         const loginIcon = document.getElementById('login-icon');
@@ -156,41 +137,6 @@
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
 
-        // Productos iniciales por defecto (si localStorage está vacío)
-        const defaultProducts = [
-            { id: 1, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', title: 'Camiseta Básica Negra', sizes: ['S', 'M', 'L', 'XL'] },
-            { id: 2, image: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', title: 'Camiseta Estampada', sizes: ['XS', 'S', 'M', 'L'] },
-            { id: 3, image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', title: 'Camiseta Manga Larga', sizes: ['M', 'L', 'XL'] },
-            { id: 4, image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', title: 'Camiseta Casual Azul', sizes: ['S', 'M', 'L'] }
-        ];
-
-        // --- FUNCIONES DE PERSISTENCIA DE DATOS (LOCALSTORAGE) ---
-        // Estas funciones garantizan que todos los usuarios que abran la página 
-        // en el mismo dispositivo vean el mismo catálogo actualizado.
-        
-        function loadProductsFromLocalStorage() {
-            try {
-                const savedProducts = localStorage.getItem('camisetasCatalog');
-                // Si hay datos guardados, los usa. Si no, usa los productos por defecto.
-                return savedProducts ? JSON.parse(savedProducts) : defaultProducts;
-            } catch (error) {
-                console.error("Error cargando productos de localStorage. Usando productos por defecto.", error);
-                return defaultProducts;
-            }
-        }
-
-        function saveProductsToLocalStorage(currentProducts) {
-            try {
-                localStorage.setItem('camisetasCatalog', JSON.stringify(currentProducts));
-            } catch (error) {
-                console.error("Error guardando productos en localStorage:", error);
-            }
-        }
-        // ----------------------------------------------------------
-
-        // Cargar el catálogo al inicio (usa localStorage si está disponible)
-        let products = loadProductsFromLocalStorage();
-
         // Función para actualizar la interfaz de usuario según el estado de la sesión
         function updateUI() {
             if (isLoggedIn) {
@@ -199,71 +145,98 @@
                 loginIcon.className = 'fas fa-sign-out-alt mr-2';
                 loginToggle.classList.remove('bg-green-500', 'hover:bg-green-600');
                 loginToggle.classList.add('bg-red-500', 'hover:bg-red-600');
-                addProductSection.classList.remove('hidden'); // Muestra el formulario de agregar
+                addProductSection.classList.remove('hidden');
             } else {
                 // Estado: No iniciado sesión (Invitado)
                 loginText.textContent = 'Iniciar Sesión';
                 loginIcon.className = 'fas fa-sign-in-alt mr-2';
                 loginToggle.classList.remove('bg-red-500', 'hover:bg-red-600');
                 loginToggle.classList.add('bg-green-500', 'hover:bg-green-600');
-                addProductSection.classList.add('hidden'); // Oculta el formulario de agregar
+                addProductSection.classList.add('hidden');
             }
-            // Renderiza el catálogo para mostrar/ocultar botones de eliminar
-            renderProducts(products); 
+            // Recargar datos desde Supabase para reflejar el estado de Admin/Invitado
+            fetchProducts(); 
         }
 
-        // Event Listeners del Modal
-        loginToggle.addEventListener('click', function() {
-            if (isLoggedIn) {
-                // Cerrar Sesión
-                isLoggedIn = false;
-                updateUI();
-                alert('Sesión cerrada. Solo puedes ver el catálogo.');
-            } else {
-                // Abrir modal de Login
-                loginModal.classList.remove('hidden');
+        // --- FUNCIONES DE SUPABASE (BACKEND) ---
+
+        // 1. OBTENER PRODUCTOS (READ)
+        async function fetchProducts() {
+            document.getElementById('loading-message').textContent = 'Cargando catálogo...';
+            const { data, error } = await supabase
+                .from(PRODUCTS_TABLE)
+                .select('*')
+                .order('id', { ascending: true }); // Ordenar por ID para consistencia
+
+            document.getElementById('loading-message').textContent = '';
+
+            if (error) {
+                console.error('Error al obtener productos:', error.message);
+                productCatalog.innerHTML = `<p class="text-red-500 md:col-span-4">Error cargando el catálogo: ${error.message}</p>`;
+                return;
             }
-        });
-
-        closeLoginModal.addEventListener('click', () => loginModal.classList.add('hidden'));
-
-        // Lógica de Login con credenciales
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-                isLoggedIn = true;
-                loginModal.classList.add('hidden');
-                loginForm.reset();
-                updateUI();
-                alert('¡Login exitoso! Bienvenido, Axel15. Tienes permisos de administrador.');
+            
+            if (data.length === 0) {
+                 productCatalog.innerHTML = `<p class="text-center md:col-span-4 text-gray-500 dark:text-gray-400">El catálogo está vacío. ${isLoggedIn ? '¡Agrega un producto!' : ''}</p>`;
             } else {
-                alert('Credenciales incorrectas. Inténtalo de nuevo. (Sugerencia: Axel15 / Axel15*.)');
+                renderProducts(data); // Renderizar los productos obtenidos de Supabase
             }
-        });
+        }
 
+        // 2. AGREGAR PRODUCTO (CREATE)
+        async function createProduct(newProduct) {
+            const { error } = await supabase
+                .from(PRODUCTS_TABLE)
+                .insert([newProduct]);
 
-        // Función para manejar la eliminación de un producto
-        function deleteProduct(productId) {
+            if (error) {
+                console.error('Error al agregar producto:', error.message);
+                alert(`Error: No se pudo agregar el producto. ${error.message}`);
+                return false;
+            }
+            return true;
+        }
+
+        // 3. ELIMINAR PRODUCTO (DELETE)
+        async function deleteProduct(productId) {
             if (!isLoggedIn) {
                 alert('¡Solo el administrador (Axel15) puede eliminar productos!');
                 return;
             }
-            if (confirm('¿Estás seguro de que quieres eliminar este producto del catálogo? Esta acción es permanente.')) {
-                
-                products = products.filter(product => product.id !== productId);
-                
-                saveProductsToLocalStorage(products); // GUARDA EL CAMBIO
-                
-                renderProducts(products); 
+            if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                return;
+            }
+
+            const { error } = await supabase
+                .from(PRODUCTS_TABLE)
+                .delete()
+                .eq('id', productId); // Eliminar donde el ID coincida
+
+            if (error) {
+                console.error('Error al eliminar producto:', error.message);
+                alert(`Error: No se pudo eliminar el producto. ${error.message}`);
+            } else {
+                // Supabase Realtime se encargará de refrescar la lista para todos
                 alert('Producto eliminado exitosamente.');
             }
         }
 
+        // 4. SUSCRIPCIÓN EN TIEMPO REAL (REALTIME)
+        function subscribeToChanges() {
+            supabase
+                .channel('catalog-updates') // Puedes usar un nombre de canal cualquiera
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: PRODUCTS_TABLE }, 
+                    () => {
+                        console.log('Cambio detectado en Supabase, refrescando catálogo...');
+                        fetchProducts(); // Cada vez que hay un INSERT, UPDATE o DELETE, recarga
+                    }
+                )
+                .subscribe();
+        }
+        // --------------------------------------
 
-        // Función para renderizar productos
+        // Función para renderizar productos (renderiza lo que recibe de Supabase)
         function renderProducts(productsToRender) {
             productCatalog.innerHTML = '';
             
@@ -316,18 +289,47 @@
             });
         }
         
-        // Función para agregar productos
-        addProductForm.addEventListener('submit', function(e) {
+        // Manejadores de eventos (Actualizados para usar Supabase)
+        loginToggle.addEventListener('click', function() {
+            if (isLoggedIn) {
+                isLoggedIn = false;
+                updateUI();
+                alert('Sesión de administrador cerrada.');
+            } else {
+                loginModal.classList.remove('hidden');
+            }
+        });
+
+        closeLoginModal.addEventListener('click', () => loginModal.classList.add('hidden'));
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                isLoggedIn = true;
+                loginModal.classList.add('hidden');
+                loginForm.reset();
+                updateUI();
+                alert('¡Login exitoso! Tienes permisos de administrador.');
+            } else {
+                alert('Credenciales incorrectas.');
+            }
+        });
+
+        addProductForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             if (!isLoggedIn) {
-                alert('¡Solo el administrador (Axel15) puede agregar productos al catálogo!');
+                alert('¡Solo el administrador (Axel15) puede agregar productos!');
                 return;
             }
             
             const imageUrl = document.getElementById('product-image').value;
             const title = document.getElementById('product-title').value;
             const sizeCheckboxes = document.querySelectorAll('.size-checkbox:checked');
+            // Nota: Aquí guardamos las tallas como un Array (TEXT[] en SQL)
             const sizes = Array.from(sizeCheckboxes).map(checkbox => checkbox.value);
             
             if (sizes.length === 0) {
@@ -336,28 +338,27 @@
             }
             
             const newProduct = {
-                id: Date.now(),
                 image: imageUrl,
                 title: title,
                 sizes: sizes
             };
             
-            products.push(newProduct);
-            
-            saveProductsToLocalStorage(products); // GUARDA EL CAMBIO
-            
-            renderProducts(products);
-            
-            // Limpiar formulario y desmarcar checkboxes
-            addProductForm.reset();
-            document.querySelectorAll('.size-checkbox').forEach(cb => cb.checked = false);
-            
-            alert('Producto agregado exitosamente al catálogo!');
+            const success = await createProduct(newProduct);
+
+            if (success) {
+                // El realtime se encargará de llamar a fetchProducts, solo limpiamos el formulario.
+                addProductForm.reset();
+                document.querySelectorAll('.size-checkbox').forEach(cb => cb.checked = false);
+                alert('Producto agregado exitosamente al catálogo global.');
+            }
         });
 
-        // Lógica de Cambio de Tema
+        // Lógica de Cambio de Tema (se mantiene igual)
         const initTheme = () => {
-            if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            const storedTheme = localStorage.getItem('color-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
                 document.documentElement.classList.add('dark');
                 themeIcon.classList.remove('fa-moon');
                 themeIcon.classList.add('fa-sun');
@@ -382,9 +383,10 @@
             }
         });
         
-        // Inicializar
+        // Inicializar la aplicación
         initTheme();
-        updateUI(); 
+        updateUI(); // Carga la UI inicial y llama a fetchProducts()
+        subscribeToChanges(); // Inicia la conexión en tiempo real
     </script>
 </body>
 </html>
