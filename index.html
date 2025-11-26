@@ -1,405 +1,290 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda de Camisetas</title>
-    <link rel="icon" href="./assets/barca.png" type="image/png">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = { darkMode: 'class', }
-    </script>
-    <style>
-        @import "tailwindcss";
-        /* Estilos CSS para el selector de tallas (igual que antes) */
-        .size-label { cursor: pointer; }
-        .size-span {
-            display: inline-block; padding: 8px 12px; background-color: #f3f4f6; color: #1f2937; 
-            border-radius: 9999px; border: 1px solid #d1d5db; transition: all 0.2s;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sportek T-Shirts · Premium Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            fadeIn: 'fadeIn 1s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
         }
-        .dark .size-span {
-            background-color: #374151; color: #d1d5db; border-color: #4b5563;
-        }
-        .size-checkbox:checked + .size-span {
-            background-color: #2563eb; color: white; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    .glass { backdrop-filter: blur(16px); background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); }
+
+    /* Estilo para tallas seleccionadas */
+    .size-checkbox:checked + .size-span {
+      @apply bg-gradient-to-r from-purple-600 to-indigo-700 text-white shadow-lg ring-4 ring-purple-500/30;
+    }
+    .size-span {
+      @apply px-5 py-3 rounded-full bg-white/10 backdrop-blur border border-white/20 cursor-pointer transition-all hover:bg-white/20;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
 
-    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 hidden flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md p-8 relative">
-            <h3 class="text-3xl font-bold text-gray-800 dark:text-white mb-6 text-center">🔐 Iniciar Sesión (Admin)</h3>
-            <form id="login-form" class="space-y-6">
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Usuario</label>
-                    <input type="text" id="username" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
-                    <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                    Acceder
-                </button>
-                <button type="button" id="close-login-modal" class="w-full mt-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
-                    Cancelar
-                </button>
-                <p class="text-sm text-center text-gray-500 dark:text-gray-400 mt-4">Credenciales: <br> Axel15 <br> Axel15*.</p>
-            </form>
-        </div>
-    </div>
+<body class="bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100 min-h-screen">
 
-    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
-    <div class="container mx-auto px-4 py-4 flex flex-wrap justify-between items-center">
-        
-        <div class="flex items-center space-x-3">
-            <img src="./assets/barca.png" alt="Tu Logo" class="h-8 w-8 object-contain">
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Camisetas Store</h1>
-        </div>
-        
-        <div class="flex items-center space-x-2 md:space-x-4"> 
-            
-            <button id="login-toggle" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 md:px-4 rounded-lg transition-colors font-medium flex items-center">
-                <i class="fas fa-sign-in-alt md:mr-2" id="login-icon"></i>
-                <span id="login-text" class="hidden md:inline">Iniciar Sesión</span> 
-            </button>
-            
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 rounded-lg transition-colors flex items-center">
-                <i class="fas fa-shopping-cart md:mr-2"></i>
-                <span class="hidden md:inline">Carrito</span> </button>
-            
-            <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                <i class="fas fa-moon" id="theme-icon"></i>
-            </button>
-            
-        </div>
-        
+<!-- Navbar con logo alineado sin marco redondo -->
+<header class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
+  <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <!-- Logo sin marco redondo -->
+      <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/1200px-FC_Barcelona_%28crest%29.svg.png" alt="FC Barcelona" class="h-10 w-auto object-contain">
+      <h1 class="text-3xl font-serif tracking-wider">Sportek T-Shirts</h1>
     </div>
+    <div class="flex items-center gap-6">
+      <button id="loginBtn" class="px-8 py-3 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl
+        bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white">
+        <span id="loginText">Iniciar Sesión</span>
+      </button>
+      <button id="themeBtn" class="p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur transition-all">
+        <i class="fas fa-moon text-xl"></i>
+      </button>
+    </div>
+  </div>
 </header>
 
-    <main class="container mx-auto px-4 py-8">
-        <section id="add-product-section" class="mb-12 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hidden">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Agregar Nueva Camiseta (Solo Admin)</h2>
-            <form id="add-product-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="product-image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">URL de la Imagen</label>
-                    <input type="url" id="product-image" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="https://ejemplo.com/imagen.jpg" required>
-                </div>
-                <div>
-                    <label for="product-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Título</label>
-                    <input type="text" id="product-title" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white" placeholder="Camiseta de ejemplo" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tallas Disponibles</label>
-                    <div class="flex flex-wrap gap-2">
-                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="XS"><span class="size-span">XS</span></label>
-                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="S"><span class="size-span">S</span></label>
-                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="M"><span class="size-span">M</span></label>
-                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="L"><span class="size-span">L</span></label>
-                        <label class="size-label"><input type="checkbox" class="size-checkbox hidden" value="XL"><span class="size-span">XL</span></label>
-                    </div>
-                </div>
-                <div class="md:col-span-2">
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
-                        <i class="fas fa-plus mr-2"></i>Agregar al Catálogo
-                    </button>
-                </div>
-            </form>
-        </section>
+<main class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
 
-        <section>
-            <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center">Catálogo de Camisetas</h2>
-            <div id="product-catalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                <p id="loading-message" class="text-center md:col-span-4 text-gray-600 dark:text-gray-400">Cargando catálogo...</p>
-            </div>
-        </section>
-    </main>
+  <!-- Hero -->
+  <div class="text-center mb-20 animate-fadeIn">
+    <h2 class="text-6xl md:text-7xl font-serif mb-6 bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+      Colección Exclusiva
+    </h2>
+    <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+      Cada camiseta es una obra de arte. Diseñada para quienes no siguen tendencias — las crean.
+    </p>
+  </div>
 
-    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12 py-8">
-        <div class="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
-            <p>&copy; 2025 Camisetas Store. Todos los derechos reservados.</p>
+  <!-- Panel Admin -->
+  <section id="adminPanel" class="mb-20 hidden">
+    <div class="glass rounded-3xl p-10 shadow-2xl border border-white/20">
+      <h3 class="text-3xl font-serif mb-8 flex items-center gap-4">
+        Panel del Creador
+      </h3>
+      <form id="addForm" class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <input type="url" id="addImage" placeholder="URL de la imagen" required class="col-span-1 lg:col-span-2 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 transition-all placeholder-gray-400">
+        <input type="text" id="addTitle" placeholder="Título de la camiseta" required class="px-6 py-4 rounded-2xl bg-white/10 border border-white/20 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 transition-all placeholder-gray-400">
+        
+        <!-- Tallas como botones seleccionables -->
+        <div class="flex flex-wrap gap-3 items-center">
+          <span class="text-sm opacity-80 mr-2">Tallas:</span>
+          <label><input type="checkbox" name="sizes" value="XS" class="size-checkbox hidden"><span class="size-span">XS</span></label>
+          <label><input type="checkbox" name="sizes" value="S" class="size-checkbox hidden"><span class="size-span">S</span></label>
+          <label><input type="checkbox" name="sizes" value="M" class="size-checkbox hidden" checked><span class="size-span">M</span></label>
+          <label><input type="checkbox" name="sizes" value="L" class="size-checkbox hidden" checked><span class="size-span">L</span></label>
+          <label><input type="checkbox" name="sizes" value="XL" class="size-checkbox hidden"><span class="size-span">XL</span></label>
         </div>
-    </footer>
 
-    <script>
-        // --- CONFIGURACIÓN DE SUPABASE (REEMPLAZA LOS PLACEHOLDERS) ---
-        const SUPABASE_URL = 'https://rusiimqtzjfojxpojsvg.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1c2lpbXF0empmb2p4cG9qc3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDc0MDMsImV4cCI6MjA3OTU4MzQwM30.953QFT1e-tDBvCIMtpwLqxLlwrDyQKjTilDHy5etThE';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const PRODUCTS_TABLE = 'productos'; // Nombre de la tabla creada con SQL
-        // -------------------------------------------------------------
+        <button type="submit" class="lg:col-span-4 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-bold py-5 rounded-2xl shadow-2xl transform hover:scale-105 transition-all">
+          Crear Nueva Camiseta
+        </button>
+      </form>
+    </div>
+  </section>
 
-        // Variables y elementos DOM (igual que antes)
-        let isLoggedIn = false;
-        const VALID_USERNAME = "Axel15";
-        const VALID_PASSWORD = "Axel15*.";
-        
-        const loginToggle = document.getElementById('login-toggle');
-        const loginText = document.getElementById('login-text');
-        const loginIcon = document.getElementById('login-icon');
-        const addProductSection = document.getElementById('add-product-section');
-        const productCatalog = document.getElementById('product-catalog');
-        const addProductForm = document.getElementById('add-product-form');
-        const loginModal = document.getElementById('login-modal');
-        const loginForm = document.getElementById('login-form');
-        const closeLoginModal = document.getElementById('close-login-modal');
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
+  <!-- Catálogo -->
+  <div id="catalog" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div class="col-span-full text-center py-20">
+      <div class="inline-block animate-pulse">
+        <div class="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+        <p class="text-2xl font-light text-gray-500">Cargando la colección...</p>
+      </div>
+    </div>
+  </div>
+</main>
 
-        // Función para actualizar la interfaz de usuario según el estado de la sesión
-        function updateUI() {
-            if (isLoggedIn) {
-                // Estado: Iniciado sesión (Admin)
-                loginText.textContent = 'Cerrar Sesión (Admin)';
-                loginIcon.className = 'fas fa-sign-out-alt mr-2';
-                loginToggle.classList.remove('bg-green-500', 'hover:bg-green-600');
-                loginToggle.classList.add('bg-red-500', 'hover:bg-red-600');
-                addProductSection.classList.remove('hidden');
-            } else {
-                // Estado: No iniciado sesión (Invitado)
-                loginText.textContent = 'Iniciar Sesión';
-                loginIcon.className = 'fas fa-sign-in-alt mr-2';
-                loginToggle.classList.remove('bg-red-500', 'hover:bg-red-600');
-                loginToggle.classList.add('bg-green-500', 'hover:bg-green-600');
-                addProductSection.classList.add('hidden');
+<!-- Modal Editar -->
+<div id="editModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-6">
+  <div class="glass rounded-3xl shadow-2xl max-w-2xl w-full p-10 animate-fadeIn">
+    <h3 class="text-3xl font-serif mb-8">Editar Camiseta</h3>
+    <form id="editForm">
+      <input type="hidden" id="editId">
+      <input type="url" id="editImage" class="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/20 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 mb-6 placeholder-gray-400" placeholder="URL de la imagen" required>
+      <input type="text" id="editTitle" class="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/20 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/30 mb-8 placeholder-gray-400" placeholder="Título" required>
+      <div class="mb-10">
+        <p class="mb-4 text-sm opacity-80">Tallas disponibles</p>
+        <div class="flex flex-wrap gap-4">
+          <label><input type="checkbox" name="edit_sizes" value="XS" class="size-checkbox hidden"><span class="size-span">XS</span></label>
+          <label><input type="checkbox" name="edit_sizes" value="S" class="size-checkbox hidden"><span class="size-span">S</span></label>
+          <label><input type="checkbox" name="edit_sizes" value="M" class="size-checkbox hidden"><span class="size-span">M</span></label>
+          <label><input type="checkbox" name="edit_sizes" value="L" class="size-checkbox hidden"><span class="size-span">L</span></label>
+          <label><input type="checkbox" name="edit_sizes" value="XL" class="size-checkbox hidden"><span class="size-span">XL</span></label>
+        </div>
+      </div>
+      <div class="flex gap-6">
+        <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-bold py-5 rounded-2xl shadow-2xl transition-all">Guardar Cambios</button>
+        <button type="button" id="closeEdit" class="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-5 rounded-2xl transition-all">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const supabase = window.supabase.createClient('https://rusiimqtzjfojxpojsvg.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1c2lpbXF0empmb2p4cG9qc3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDc0MDMsImV4cCI6MjA3OTU4MzQwM30.953QFT1e-tDBvCIMtpwLqxLlwrDyQKjTilDHy5etThE');
+
+  let isAdmin = false;
+  const catalog = document.getElementById('catalog');
+  const adminPanel = document.getElementById('adminPanel');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginText = document.getElementById('loginText');
+
+  async function loadProducts() {
+    const { data } = await supabase.from('productos').select('*').order('id', { ascending: false });
+    
+    if (!data || data.length === 0) {
+      catalog.innerHTML = `<div class="col-span-full text-center py-32"><p class="text-3xl font-light text-gray-500">La colección está vacía.<br><span class="text-lg">${isAdmin ? 'Agrega tu primera camiseta' : 'Pronto llegarán nuevas piezas'}</span></p></div>`;
+      return;
+    }
+
+    catalog.innerHTML = data.map((p, i) => `
+      <div class="group relative bg-white/5 dark:bg-white/5 rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 animate-fadeIn" style="animation-delay: ${i * 100}ms">
+        <div class="relative overflow-hidden">
+          <img src="${p.image}" alt="${p.title}" class="w-full h-96 object-cover transition-transform duration-1000 group-hover:scale-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+        </div>
+
+        ${isAdmin ? `
+          <div class="absolute top-4 right-4 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <button class="editBtn p-3 rounded-full bg-white/20 backdrop-blur hover:bg-white/40 shadow-xl border border-white/30 transition-all" data-id="${p.id}">
+              <i class="fas fa-edit text-white text-sm"></i>
+            </button>
+            <button class="deleteBtn p-3 rounded-full bg-red-600/80 backdrop-blur hover:bg-red-700 shadow-xl border border-white/30 transition-all" data-id="${p.id}">
+              <i class="fas fa-trash text-white text-sm"></i>
+            </button>
+          </div>
+        ` : ''}
+
+        <div class="p-6 text-center space-y-5">
+          <h3 class="text-xl font-serif leading-tight">${p.title}</h3>
+          
+          <div class="flex justify-center flex-wrap gap-2">
+            ${p.sizes && p.sizes.length > 0 
+              ? p.sizes.map(s => `<span class="px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 text-xs font-medium">${s}</span>`).join('')
+              : '<span class="text-gray-500 text-xs">Sin tallas</span>'
             }
-            // Recargar datos desde Supabase para reflejar el estado de Admin/Invitado
-            fetchProducts(); 
-        }
+          </div>
 
-        // --- FUNCIONES DE SUPABASE (BACKEND) ---
+          <button class="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-medium shadow-xl hover:shadow-purple-500/50 transition-all">
+            Añadir al Carrito
+          </button>
+        </div>
+      </div>
+    `).join('');
 
-        // 1. OBTENER PRODUCTOS (READ)
-        async function fetchProducts() {
-            document.getElementById('loading-message').textContent = 'Cargando catálogo...';
-            const { data, error } = await supabase
-                .from(PRODUCTS_TABLE)
-                .select('*')
-                .order('id', { ascending: true }); // Ordenar por ID para consistencia
-
-            document.getElementById('loading-message').textContent = '';
-
-            if (error) {
-                console.error('Error al obtener productos:', error.message);
-                productCatalog.innerHTML = `<p class="text-red-500 md:col-span-4">Error cargando el catálogo: ${error.message}</p>`;
-                return;
-            }
-            
-            if (data.length === 0) {
-                 productCatalog.innerHTML = `<p class="text-center md:col-span-4 text-gray-500 dark:text-gray-400">El catálogo está vacío. ${isLoggedIn ? '¡Agrega un producto!' : ''}</p>`;
-            } else {
-                renderProducts(data); // Renderizar los productos obtenidos de Supabase
-            }
-        }
-
-        // 2. AGREGAR PRODUCTO (CREATE)
-        async function createProduct(newProduct) {
-            const { error } = await supabase
-                .from(PRODUCTS_TABLE)
-                .insert([newProduct]);
-
-            if (error) {
-                console.error('Error al agregar producto:', error.message);
-                alert(`Error: No se pudo agregar el producto. ${error.message}`);
-                return false;
-            }
-            return true;
-        }
-
-        // 3. ELIMINAR PRODUCTO (DELETE)
-        async function deleteProduct(productId) {
-            if (!isLoggedIn) {
-                alert('¡Solo el administrador (Axel15) puede eliminar productos!');
-                return;
-            }
-            if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-                return;
-            }
-
-            const { error } = await supabase
-                .from(PRODUCTS_TABLE)
-                .delete()
-                .eq('id', productId); // Eliminar donde el ID coincida
-
-            if (error) {
-                console.error('Error al eliminar producto:', error.message);
-                alert(`Error: No se pudo eliminar el producto. ${error.message}`);
-            } else {
-                // Supabase Realtime se encargará de refrescar la lista para todos
-                alert('Producto eliminado exitosamente.');
-            }
-        }
-
-        // 4. SUSCRIPCIÓN EN TIEMPO REAL (REALTIME)
-        function subscribeToChanges() {
-            supabase
-                .channel('catalog-updates') // Puedes usar un nombre de canal cualquiera
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: PRODUCTS_TABLE }, 
-                    () => {
-                        console.log('Cambio detectado en Supabase, refrescando catálogo...');
-                        fetchProducts(); // Cada vez que hay un INSERT, UPDATE o DELETE, recarga
-                    }
-                )
-                .subscribe();
-        }
-        // --------------------------------------
-
-        // Función para renderizar productos (renderiza lo que recibe de Supabase)
-        function renderProducts(productsToRender) {
-            productCatalog.innerHTML = '';
-            
-            productsToRender.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 flex flex-col';
-                
-                // El botón de eliminar SOLO se inyecta si isLoggedIn es true
-                const deleteButtonHtml = isLoggedIn ? `
-                    <button data-id="${product.id}" class="delete-btn absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full size-8 flex items-center justify-center shadow-lg transition-colors z-20" title="Eliminar Producto">
-                        <i class="fas fa-trash-alt text-sm"></i>
-                    </button>
-                ` : '';
-
-                productCard.innerHTML = `
-                    <div class="h-64 overflow-hidden relative">
-                        <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover">
-                        ${deleteButtonHtml}
-                    </div>
-                    <div class="p-4 flex-grow flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">${product.title}</h3>
-                            <div class="mb-4">
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Tallas disponibles:</p>
-                                <div class="flex flex-wrap gap-2">
-                                    ${product.sizes.map(size => `
-                                        <span class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs rounded">${size}</span>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </div>
-                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center mt-auto">
-                            <i class="fas fa-shopping-cart mr-2"></i>Comprar
-                        </button>
-                    </div>
-                `;
-                
-                productCatalog.appendChild(productCard);
-
-                // Asigna el evento de eliminación SOLO si el botón fue creado
-                if (isLoggedIn) {
-                    const deleteButton = productCard.querySelector('.delete-btn');
-                    if (deleteButton) {
-                        deleteButton.addEventListener('click', function() {
-                            const productId = parseInt(this.getAttribute('data-id'));
-                            deleteProduct(productId);
-                        });
-                    }
-                }
-            });
-        }
-        
-        // Manejadores de eventos (Actualizados para usar Supabase)
-        loginToggle.addEventListener('click', function() {
-            if (isLoggedIn) {
-                isLoggedIn = false;
-                updateUI();
-                alert('Sesión de administrador cerrada.');
-            } else {
-                loginModal.classList.remove('hidden');
-            }
-        });
-
-        closeLoginModal.addEventListener('click', () => loginModal.classList.add('hidden'));
-
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-                isLoggedIn = true;
-                loginModal.classList.add('hidden');
-                loginForm.reset();
-                updateUI();
-                alert('¡Login exitoso! Tienes permisos de administrador.');
-            } else {
-                alert('Credenciales incorrectas.');
-            }
-        });
-
-        addProductForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            if (!isLoggedIn) {
-                alert('¡Solo el administrador (Axel15) puede agregar productos!');
-                return;
-            }
-            
-            const imageUrl = document.getElementById('product-image').value;
-            const title = document.getElementById('product-title').value;
-            const sizeCheckboxes = document.querySelectorAll('.size-checkbox:checked');
-            // Nota: Aquí guardamos las tallas como un Array (TEXT[] en SQL)
-            const sizes = Array.from(sizeCheckboxes).map(checkbox => checkbox.value);
-            
-            if (sizes.length === 0) {
-                alert('Por favor selecciona al menos una talla');
-                return;
-            }
-            
-            const newProduct = {
-                image: imageUrl,
-                title: title,
-                sizes: sizes
-            };
-            
-            const success = await createProduct(newProduct);
-
-            if (success) {
-                // El realtime se encargará de llamar a fetchProducts, solo limpiamos el formulario.
-                addProductForm.reset();
-                document.querySelectorAll('.size-checkbox').forEach(cb => cb.checked = false);
-                alert('Producto agregado exitosamente al catálogo global.');
-            }
-        });
-
-        // Lógica de Cambio de Tema (se mantiene igual)
-        const initTheme = () => {
-            const storedTheme = localStorage.getItem('color-theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-            if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
-                document.documentElement.classList.add('dark');
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-            } else {
-                document.documentElement.classList.remove('dark');
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-            }
+    if (isAdmin) {
+      document.querySelectorAll('.deleteBtn').forEach(b => {
+        b.onclick = () => {
+          if (confirm('¿Eliminar esta camiseta?')) {
+            supabase.from('productos').delete().eq('id', b.dataset.id).then(() => loadProducts());
+          }
         };
+      });
+      document.querySelectorAll('.editBtn').forEach(b => {
+        b.onclick = () => openEditModal(b.dataset.id, data);
+      });
+    }
+  }
 
-        themeToggle.addEventListener('click', function() {
-            themeIcon.classList.toggle('fa-moon');
-            themeIcon.classList.toggle('fa-sun');
-            
-            const isDark = document.documentElement.classList.contains('dark');
-            if (isDark) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('color-theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('color-theme', 'dark');
-            }
-        });
-        
-        // Inicializar la aplicación
-        initTheme();
-        updateUI(); // Carga la UI inicial y llama a fetchProducts()
-        subscribeToChanges(); // Inicia la conexión en tiempo real
-    </script>
+  function openEditModal(id, products) {
+    const p = products.find(x => x.id == id);
+    document.getElementById('editId').value = p.id;
+    document.getElementById('editImage').value = p.image;
+    document.getElementById('editTitle').value = p.title;
+    document.querySelectorAll('input[name="edit_sizes"]').forEach(cb => {
+      cb.checked = p.sizes.includes(cb.value);
+    });
+    document.getElementById('editModal').classList.remove('hidden');
+  }
+
+  document.getElementById('editForm').onsubmit = async e => {
+    e.preventDefault();
+    const sizes = Array.from(document.querySelectorAll('input[name="edit_sizes"]:checked')).map(c => c.value);
+    if (!sizes.length) return alert('Selecciona al menos una talla');
+    await supabase.from('productos').update({
+      image: e.target.editImage.value,
+      title: e.target.editTitle.value,
+      sizes
+    }).eq('id', e.target.editId.value);
+    document.getElementById('editModal').classList.add('hidden');
+    loadProducts();
+  };
+
+  document.getElementById('closeEdit').onclick = () => document.getElementById('editModal').classList.add('hidden');
+
+  // Login Admin
+  loginBtn.onclick = () => {
+    if (isAdmin) {
+      isAdmin = false;
+      loginText.textContent = 'Iniciar Sesión';
+      loginBtn.classList.remove('from-red-600', 'to-rose-700');
+      loginBtn.classList.add('from-purple-600', 'to-indigo-700');
+      adminPanel.classList.add('hidden');
+      loadProducts();
+    } else {
+      const user = prompt('Usuario:');
+      const pass = prompt('Contraseña:');
+      if (user === 'Axel15' && pass === 'Axel15*.') {
+        isAdmin = true;
+        loginText.textContent = 'Cerrar Sesión';
+        loginBtn.classList.remove('from-purple-600', 'to-indigo-700');
+        loginBtn.classList.add('from-red-600', 'to-rose-700');
+        adminPanel.classList.remove('hidden');
+        loadProducts();
+        alert('Bienvenido, creador');
+      } else if (user !== null) {
+        alert('Acceso denegado');
+      }
+    }
+  };
+
+  // Agregar camiseta
+  document.getElementById('addForm').onsubmit = async e => {
+    e.preventDefault();
+    const sizes = Array.from(e.target.querySelectorAll('input[name="sizes"]:checked')).map(c => c.value);
+    if (!sizes.length) return alert('Selecciona al menos una talla');
+    
+    await supabase.from('productos').insert([{
+      image: e.target.addImage.value.trim(),
+      title: e.target.addTitle.value.trim(),
+      sizes
+    }]);
+    
+    e.target.reset();
+    loadProducts();
+  };
+
+  // Tema
+  document.getElementById('themeBtn').onclick = () => {
+    document.documentElement.classList.toggle('dark');
+    const isDark = document.documentElement.classList.contains('dark');
+    document.querySelector('#themeBtn i').className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon';
+  };
+
+  // Carga inicial
+  supabase.channel('productos').on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, () => loadProducts()).subscribe();
+  loadProducts();
+</script>
 </body>
 </html>
